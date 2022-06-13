@@ -1,4 +1,5 @@
 ﻿using MeetingRoomApi.Models;
+using MeetingRoomApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,27 +14,18 @@ namespace MeetingRoomApi.Controllers
     [ApiController]
     public class RoomsController : ControllerBase
     {
-        List<Room> rooms = new List<Room>
-        {
-            new Room
-            {
-                Id = Guid.Parse("1DDA7260-08E8-4B32-A9EE-F7E1CA69BC9C"),
-                Name = "first"
-            },
-            new Room
-            {
-                Id = Guid.Parse("2DDA7260-08E8-4B32-A9EE-F7E1CA69BC9C"),
-                Name = "second",
-                Description = "desc"
-            }
-        };
+        // ["1dda7260-08e8-4b32-a9ee-f7e1ca69bc9c","2dda7260-08e8-4b32-a9ee-f7e1ca69bc9c"]
+        private readonly IRoomRepository roomRepository;
+
+        public RoomsController(IRoomRepository roomRepository) 
+            => this.roomRepository = roomRepository;
 
         [HttpGet]
         //[Authorize(Roles = "User")]
         [Route("GetAllRooms")]
         public IActionResult GetAllRooms()
         {
-            return Ok(rooms);
+            return Ok(JsonConvert.SerializeObject(roomRepository.GetRooms()));
         }
 
         [HttpGet]
@@ -42,7 +34,7 @@ namespace MeetingRoomApi.Controllers
         public IActionResult GetRoomById(string data)
         {
             Guid roomId = JsonConvert.DeserializeObject<Guid>(data);
-            return Ok(rooms.Where(r => r.Id == roomId).FirstOrDefault());
+            return Ok(JsonConvert.SerializeObject(roomRepository.GetRoomById(roomId)));
         }
 
         [HttpGet]
@@ -51,7 +43,7 @@ namespace MeetingRoomApi.Controllers
         public IActionResult GetRoomsByIds(string data)
         {
             var roomIds = JsonConvert.DeserializeObject<IEnumerable<Guid>>(data);
-            return Ok(rooms.Where(r => roomIds.Contains(r.Id)));
+            return Ok(JsonConvert.SerializeObject(roomRepository.GetRoomsByIds(roomIds)));
         }
     }
 }

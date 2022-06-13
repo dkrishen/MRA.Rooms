@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MeetingRoomApi.Models
 {
-    public class Room
+    public partial class Room
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
